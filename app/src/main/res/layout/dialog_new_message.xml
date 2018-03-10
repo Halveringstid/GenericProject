@@ -3,6 +3,7 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
+        android:minWidth="300dp"
         android:layout_margin="10dp"
         android:padding="10dp"
         android:background="@color/colorBackgroundLight"
@@ -11,14 +12,15 @@
 
         <EditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="250dp"
             android:hint="@string/new_message_cta"
             android:id="@+id/dialog_new_message_content"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_rounded"
+            android:id="@+id/dialog_new_message_submit"
             android:text="@string/new_message_send"/>
 
     </LinearLayout>

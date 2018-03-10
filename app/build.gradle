@@ -13,7 +13,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "27.0.3"
     defaultConfig {
-        applicationId "me.rozkmin.hacknarock"
+        applicationId "me.rozkmin.swot"
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
