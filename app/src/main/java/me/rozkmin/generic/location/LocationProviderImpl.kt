@@ -10,7 +10,6 @@ import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -80,5 +79,10 @@ class LocationProviderImpl @Inject constructor() : LocationProvider {
         } ?: -1.0
     }
 
-    override fun getLastKnownLocation(): LatLng = myLocation ?: LatLng(0.0, 0.0)
+    @SuppressLint("MissingPermission")
+    override fun getLastKnownLocation(): LatLng = myLocation
+            ?: locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                    ?.let {
+                        LatLng(it.latitude, it.longitude)
+                    } ?: LatLng(0.0, 0.0)
 }

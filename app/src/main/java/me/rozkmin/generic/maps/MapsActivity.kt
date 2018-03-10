@@ -1,24 +1,22 @@
 package me.rozkmin.generic.maps
 
-import android.app.Dialog
 import android.Manifest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
-
 import com.google.android.gms.maps.CameraUpdateFactory
+
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
-import me.rozkmin.generic.Position
 import me.rozkmin.generic.R
 import me.rozkmin.generic.createmessage.NewMessageBody
 import me.rozkmin.generic.createmessage.NewMessageDialog
@@ -27,8 +25,6 @@ import me.rozkmin.generic.location.LocationProvider
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
-import me.rozkmin.generic.MainActivity
-import android.content.Intent
 import me.rozkmin.generic.Wrapper
 
 
@@ -41,6 +37,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var locationProvider: LocationProvider
 
     private lateinit var mMap: GoogleMap
+
+    companion object {
+        val TAG: String = MapsActivity::class.java.simpleName
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +77,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             if (it) locationProvider.start(this)
         }
 
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
@@ -108,18 +109,40 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 //        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
-        mMap.setOnMarkerClickListener { marker -> (
-            if (marker.title == null) {
-                Log.d("MapsActivity", "Test")
-                false
-            } else {
-                MessageDialog.newInstance(marker.title).show(supportFragmentManager, "")
-                true
-            }
-            )
+        mMap.setOnMarkerClickListener { marker ->
+            (
+                    if (marker.title == null) {
+                        Log.d("MapsActivity", "Test")
+                        false
+                    } else {
+                        MessageDialog.newInstance(marker.title).show(supportFragmentManager, "")
+                        true
+                    }
+                    )
         }
-
+        checkPermissions {
+            if(it){
+                centerOnMe()
+            }
+        }
         fetchData()
+    }
+
+    private fun centerOnMe() {
+        locationProvider.observeLocationUpdates()
+                .first(locationProvider.getLastKnownLocation())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    centerMapOn(it)
+                }, {
+                    Log.e(TAG, "centerOnMe: ", it)
+                })
+
+    }
+
+    private fun centerMapOn(latLng: LatLng) {
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11f))
     }
 
 
@@ -128,7 +151,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    Log.d(this.localClassName,it.size.toString())
+                    Log.d(this.localClassName, it.size.toString())
                     markElementsAtMap(it)
                 }, {
                     //error
@@ -139,10 +162,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun markElementsAtMap(it: List<Wrapper>?) {
 
         it?.apply {
-            map{
+            map {
                 it.data
             }.forEach {
-                mMap.addMarker(MarkerOptions().position(LatLng(it.lat,it.lon)).title(it.message))
+                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message))
             }
         }
 
