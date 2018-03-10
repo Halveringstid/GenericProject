@@ -28,12 +28,18 @@ import javax.inject.Inject
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.content.ContextCompat
+import android.text.format.Time
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
 import io.reactivex.Single
 import me.rozkmin.generic.Position
 import me.rozkmin.generic.data.AbstractProvider
 import java.util.*
+import me.rozkmin.generic.data.SharedPreferencesStorage
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -59,6 +65,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        SharedPreferencesStorage(this@MapsActivity).sharedPreferences
+
         setContentView(R.layout.activity_maps)
 
         AppModule.appComponent
@@ -69,20 +77,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             NewMessageDialog.newInstance()
                     .apply {
                         submitFunction = {
-                            Log.d(TAG, "postingNewMessage: " + it)
-                            networkService.postNewMessage(
-                                    NewMessageBody(
-                                            message = it,
-                                            lat = locationProvider.getLastKnownLocation().latitude,
-                                            lon = locationProvider.getLastKnownLocation().longitude
-                                    ))
-                                    .applySchedulers()
-                                    .subscribe({
-                                        updateElementOnMap(Pair(it.data.copy(id = UUID.randomUUID().toString()), true))
-                                        this.dismiss()
-                                    }, {
-                                        Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
-                                    })
+
+                            val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
+                            Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 2 ) {
+                                Log.d(TAG, "postingNewMessage: " + it)
+                                networkService.postNewMessage(
+                                        NewMessageBody(
+                                                message = it,
+                                                lat = locationProvider.getLastKnownLocation().latitude,
+                                                lon = locationProvider.getLastKnownLocation().longitude
+                                        ))
+                                        .applySchedulers()
+                                        .subscribe({
+                                            updateElementOnMap(Pair(it.data.copy(id = UUID.randomUUID().toString()), true))
+                                            this.dismiss()
+
+                                            SharedPreferencesStorage(this@MapsActivity).updateLastMessageTimestamp(System.currentTimeMillis().toString())
+                                            val first = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
+                                            Log.d(TAG, first)
+
+                                        }, {
+                                            Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
+                                        })
+                            }
+                            else {
+                                Toast.makeText(this@MapsActivity, "Nie spamuj, do diabła!", Toast.LENGTH_LONG).show()
+                                Log.d(TAG, "Próba spamu zablokowana")
+                            }
                         }
                     }
                     .show(supportFragmentManager, "")
@@ -194,4 +216,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     private fun <T> Single<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+}
+
+class TooManyMessagesException : Throwable() {
+
 }
