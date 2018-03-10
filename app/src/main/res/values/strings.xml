@@ -5,4 +5,5 @@
     <string name="swot_enter_subtitle">Enter subtitle (optional)</string>
     <string name="swot_enter_description">Enter descrription (optional)</string>
     <string name="success">Sucess</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
