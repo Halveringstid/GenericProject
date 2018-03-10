@@ -8,6 +8,7 @@ import me.rozkmin.generic.maps.di.MapsComponent
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.PresenterSchedulers
 import me.rozkmin.generic.data.di.DatabaseModule
+import me.rozkmin.generic.location.LocationModule
 import me.rozkmin.generic.network.NetworkModule
 import javax.inject.Singleton
 
@@ -15,7 +16,7 @@ import javax.inject.Singleton
  * Created by jaroslawmichalik on 02.03.2018
  */
 @Singleton
-@Component(modules = [(DatabaseModule::class), (NetworkModule::class)])
+@Component(modules = [(DatabaseModule::class), (NetworkModule::class), LocationModule::class])
 interface AppComponent {
 
     fun plusMapsComponent(mapsModule: MapsModule): MapsComponent
