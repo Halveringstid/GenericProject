@@ -28,7 +28,6 @@ class MessageDialog : DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = MessageDialogBinding.inflate(inflater, container, false)
         return binding.root
-        return null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

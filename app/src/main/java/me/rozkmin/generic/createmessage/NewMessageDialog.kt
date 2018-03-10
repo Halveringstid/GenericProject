@@ -43,7 +43,9 @@ class NewMessageDialog : DialogFragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 s?.apply {
                     validate(this){
-                        submitFunction.invoke(this.toString())
+                        binding.dialogNewMessageSubmit.setOnClickListener {
+                            submitFunction.invoke(this.toString())
+                        }
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package me.rozkmin.generic.maps
 
 import android.Manifest
+import android.content.Context
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -27,6 +28,8 @@ import javax.inject.Inject
 import me.rozkmin.generic.Wrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.support.v4.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 
@@ -57,6 +60,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             NewMessageDialog.newInstance(LatLng(0.0, 0.0))
                     .apply {
                         submitFunction = {
+                            Log.d(TAG, "postingNewMessage: "+it)
                             networkService.postNewMessage(
                                     NewMessageBody(
                                             message = it,
@@ -69,6 +73,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         Log.d(TAG, "submitMyMessage: "+it)
                                         this.dismiss()
                                     }, {
+                                        Log.e(TAG, "submitError: ", it)
                                         Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
                                     })
                         }
@@ -155,8 +160,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //todo fetch messages and display to map
     }
 
-    private fun resizeMapIcons(iconName: String, width: Int, height: Int): Bitmap {
-        val imageBitmap = BitmapFactory.decodeResource(resources, resources.getIdentifier(iconName, "drawable", packageName))
+    private fun Context.getBitmap(resourceId: Int) =
+            (ContextCompat.getDrawable(this, resourceId) as BitmapDrawable).bitmap
+
+    private fun resizeMapIcons(resourceId: Int, width: Int, height: Int): Bitmap {
+        val imageBitmap = getBitmap(resourceId)
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
     }
     private fun markElementsAtMap(it: List<Wrapper>?) {
@@ -165,7 +173,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             map {
                 it.data
             }.forEach {
-                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("readable",100,100))))
+                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.spray_icon,100,100))))
             }
         }
 
