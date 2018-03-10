@@ -64,7 +64,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(AndroidSchedulers.mainThread())
                                     .subscribe({
-
+                                        Log.d(TAG, "submitMyMessage: "+it)
+                                        this.dismiss()
                                     }, {
                                         Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
                                     })
@@ -129,16 +130,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun centerOnMe() {
-        locationProvider.observeLocationUpdates()
-                .first(locationProvider.getLastKnownLocation())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    centerMapOn(it)
-                }, {
-                    Log.e(TAG, "centerOnMe: ", it)
-                })
-
+        locationProvider.getLastKnownLocation().let {
+            centerMapOn(it)
+        }
     }
 
     private fun centerMapOn(latLng: LatLng) {
