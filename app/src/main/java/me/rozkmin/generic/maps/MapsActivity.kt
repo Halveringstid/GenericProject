@@ -28,17 +28,15 @@ import javax.inject.Inject
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.content.ContextCompat
-import android.text.format.Time
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Marker
+import io.reactivex.Flowable
 import io.reactivex.Single
+import io.reactivex.disposables.Disposable
 import me.rozkmin.generic.Position
 import me.rozkmin.generic.data.AbstractProvider
 import java.util.*
 import me.rozkmin.generic.data.SharedPreferencesStorage
-import java.text.SimpleDateFormat
-import java.time.LocalTime
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -80,13 +78,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                             val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
                             Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
-                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 2 ) {
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 2) {
                                 Log.d(TAG, "postingNewMessage: " + it)
                                 networkService.postNewMessage(
                                         NewMessageBody(
                                                 message = it,
                                                 lat = locationProvider.getLastKnownLocation().latitude,
-                                                lon = locationProvider.getLastKnownLocation().longitude
+                                                lon = locationProvider.getLastKnownLocation().longitude,
+                                                author = "Anon Anonowicz"
                                         ))
                                         .applySchedulers()
                                         .subscribe({
@@ -100,8 +99,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         }, {
                                             Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
                                         })
-                            }
-                            else {
+                            } else {
                                 Toast.makeText(this@MapsActivity, "Nie spamuj, do diabła!", Toast.LENGTH_LONG).show()
                                 Log.d(TAG, "Próba spamu zablokowana")
                             }
@@ -178,6 +176,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
     }
 
+    private var disposable : Disposable? = null
+
     private fun fetchData() {
 
         messagesProvider.getAll()
@@ -189,6 +189,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     it.forEach { updateElementOnMap(it) }
                 }
                 .subscribe()
+
+        disposable = locationProvider.observeLocationUpdates()
+                .doOnNext { updateMyPosition(it) }
+                .flatMap { messagesProvider.getAll().toFlowable().applySchedulers() }
+                .doOnNext {
+                    it.forEach { updateElementOnMap(it) }
+                }
+                .doOnError {
+                    Log.d(TAG, "updateDataOnLocationUpdate: ", it)
+                }
+                .subscribe()
+    }
+
+    private fun updateMyPosition(it: LatLng) {
+
     }
 
     private fun updateElementOnMap(element: Pair<Position, Boolean>) {
@@ -198,12 +213,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     Bitmap.createScaledBitmap(it, 100, 100, false)
                 }
 
-        val marker = map.addMarker(
-                MarkerOptions()
-                        .position(LatLng(element.first.lat, element.first.lon)).title(element.first.message)
-                        .icon(BitmapDescriptorFactory.fromBitmap(icon)))
+        if(mapOfMarkers.containsValue(element.first)){
+            mapOfMarkers.keys.first { mapOfMarkers[it] != null }
+                    .setIcon(BitmapDescriptorFactory.fromBitmap(icon))
+        } else{
+            val marker = map.addMarker(
+                    MarkerOptions()
+                            .position(LatLng(element.first.lat, element.first.lon)).title(element.first.message)
+                            .icon(BitmapDescriptorFactory.fromBitmap(icon)))
 
-        mapOfMarkers[marker] = element.first
+            mapOfMarkers[marker] = element.first
+        }
+
     }
 
     private fun Context.getBitmap(resourceId: Int) =
@@ -217,6 +238,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun <T> Single<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 }
+
+private fun <T> Flowable<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
 class TooManyMessagesException : Throwable() {
 
