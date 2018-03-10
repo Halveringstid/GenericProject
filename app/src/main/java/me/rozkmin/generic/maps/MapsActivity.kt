@@ -29,7 +29,7 @@ import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
 import me.rozkmin.generic.MainActivity
 import android.content.Intent
-
+import me.rozkmin.generic.Wrapper
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -136,10 +136,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //todo fetch messages and display to map
     }
 
-    private fun markElementsAtMap(it: List<Position>?) {
-        if (it == null) return
-        for (pos in it) {
-            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)).title("BARDZO DLUGI STRING KTORY MA BARDZO DUZO ZNAKOW I NA PEWNO NIE ZMIESCI SIE W CHMURCE"))
+    private fun markElementsAtMap(it: List<Wrapper>?) {
+
+        it?.apply {
+            map{
+                it.data
+            }.forEach {
+                mMap.addMarker(MarkerOptions().position(LatLng(it.lat,it.lon)).title(it.message))
+            }
         }
+
+//        if (it == null) return
+//        for (pos in it) {
+//            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)).title("BARDZO DLUGI STRING KTORY MA BARDZO DUZO ZNAKOW I NA PEWNO NIE ZMIESCI SIE W CHMURCE"))
+//        }
     }
 }

@@ -19,7 +19,7 @@ import javax.inject.Singleton
 class NetworkModule {
 
     companion object {
-        const val API_URL = "http://80.211.240.79:8081/"
+        const val API_URL = "http://80.211.240.79:666"
 
         val TAG = NetworkModule::class.java.simpleName
     }
