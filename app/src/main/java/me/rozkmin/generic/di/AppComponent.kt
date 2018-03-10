@@ -6,13 +6,14 @@ import dagger.Component
 import io.realm.RealmConfiguration
 import me.rozkmin.generic.PresenterSchedulers
 import me.rozkmin.generic.data.di.DatabaseModule
+import me.rozkmin.generic.network.NetworkModule
 import javax.inject.Singleton
 
 /**
  * Created by jaroslawmichalik on 02.03.2018
  */
 @Singleton
-@Component(modules = [(DatabaseModule::class)])
+@Component(modules = [(DatabaseModule::class), (NetworkModule::class)])
 interface AppComponent{
 
 //    fun plusCreateNewComponent(module : CreateNewModule) : CreateNewComponent
