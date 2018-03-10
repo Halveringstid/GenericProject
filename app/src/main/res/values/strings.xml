@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">App</string>
+    <string name="app_name">GraffITi on Chain</string>
     <string name="done">Done</string>
     <string name="swot_enter_title">Enter title</string>
     <string name="swot_enter_subtitle">Enter subtitle (optional)</string>
-    <string name="swot_enter_description">Enter descrription (optional)</string>
-    <string name="success">Sucess</string>
+    <string name="swot_enter_description">Enter description (optional)</string>
+    <string name="success">Success</string>
     <string name="title_activity_maps">Map</string>
     <string name="new_message_cta">Write something funny</string>
     <string name="new_message_send">Send</string>
