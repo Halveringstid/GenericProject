@@ -14,7 +14,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.toSingle
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
 import me.rozkmin.generic.R
@@ -26,6 +25,9 @@ import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
 import me.rozkmin.generic.Wrapper
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -153,13 +155,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         //todo fetch messages and display to map
     }
 
+    private fun resizeMapIcons(iconName: String, width: Int, height: Int): Bitmap {
+        val imageBitmap = BitmapFactory.decodeResource(resources, resources.getIdentifier(iconName, "drawable", packageName))
+        return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
+    }
     private fun markElementsAtMap(it: List<Wrapper>?) {
 
         it?.apply {
             map {
                 it.data
             }.forEach {
-                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message))
+                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("readable",100,100))))
             }
         }
 
