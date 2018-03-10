@@ -22,17 +22,20 @@
             <!--android:orientation="horizontal">-->
 
             <Button
+                android:id="@+id/message_dialog_button_yes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:background="@color/yes"
+                android:text="Yes" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/message_dialog_button_no"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Button" />
+                android:background="@color/colorAccent"
+                android:text="No" />
         </LinearLayout>
 
     </LinearLayout>
