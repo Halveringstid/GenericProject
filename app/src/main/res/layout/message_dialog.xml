@@ -15,9 +15,11 @@
             android:layout_width="match_parent"
             android:layout_height="39dp"
             android:layout_marginTop="30dp"
+            android:fontFamily="@font/BRINGTHANOIZE"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="@color/common_google_signin_btn_text_dark_focused" />
+            android:textColor="@color/common_google_signin_btn_text_dark_focused"
+            android:textSize="@android:dimen/dialog_min_width_major" />
 
         <TextView
             android:id="@+id/message_dialog_content"
