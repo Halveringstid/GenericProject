@@ -35,5 +35,12 @@ class MessageDialog : DialogFragment() {
         binding.messageDialogContent.text = message
         super.onViewCreated(view, savedInstanceState)
 
+        binding.messageDialogButtonYes.setOnClickListener{
+            this.dismiss()
+        }
+
+        binding.messageDialogButtonNo.setOnClickListener{
+            this.dismiss()
+        }
     }
 }

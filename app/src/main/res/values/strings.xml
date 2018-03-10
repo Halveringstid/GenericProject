@@ -9,4 +9,5 @@
     <string name="new_message_cta">Write something funny</string>
     <string name="new_message_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
+
 </resources>
