@@ -173,7 +173,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             map {
                 it.data
             }.forEach {
-                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.tram_icon,100,100))))
+                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.spray_icon,100,100))))
             }
         }
 
