@@ -1,23 +1,31 @@
 package me.rozkmin.generic.maps
 
+import android.app.Dialog
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
+import me.rozkmin.generic.Position
 import me.rozkmin.generic.R
 import me.rozkmin.generic.createmessage.NewMessageDialog
 import me.rozkmin.generic.di.AppModule
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
+import me.rozkmin.generic.MainActivity
+import android.content.Intent
+
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -64,10 +72,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 //        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
+        mMap.setOnMarkerClickListener { marker -> (
+            if (marker.title == null) {
+                Log.d("MapsActivity", "Test")
+                false
+            } else {
+                MessageDialog.newInstance(marker.title).show(supportFragmentManager, "")
+                true
+            }
+            )
+        }
+
         fetchData()
-
-
     }
+
 
     private fun fetchData() {
         networkService.getAllMessages()
@@ -85,7 +103,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun markElementsAtMap(it: List<Position>?) {
         if (it == null) return
         for (pos in it) {
-            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)))
+            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)).title("BARDZO DLUGI STRING KTORY MA BARDZO DUZO ZNAKOW I NA PEWNO NIE ZMIESCI SIE W CHMURCE"))
         }
     }
 }
