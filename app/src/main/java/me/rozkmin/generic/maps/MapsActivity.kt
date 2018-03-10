@@ -1,8 +1,10 @@
 package me.rozkmin.generic.maps
 
+import android.app.Dialog
 import android.Manifest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -10,11 +12,13 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
+import me.rozkmin.generic.Position
 import me.rozkmin.generic.R
 import me.rozkmin.generic.createmessage.NewMessageBody
 import me.rozkmin.generic.createmessage.NewMessageDialog
@@ -23,6 +27,10 @@ import me.rozkmin.generic.location.LocationProvider
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
+import me.rozkmin.generic.MainActivity
+import android.content.Intent
+
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -96,24 +104,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+//        val sydney = LatLng(-34.0, 151.0)
+//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+
+        mMap.setOnMarkerClickListener { marker -> (
+            if (marker.title == null) {
+                Log.d("MapsActivity", "Test")
+                false
+            } else {
+                MessageDialog.newInstance(marker.title).show(supportFragmentManager, "")
+                true
+            }
+            )
+        }
 
         fetchData()
-
-
     }
 
+
     private fun fetchData() {
-        networkService.dupa()
+        networkService.getAllMessages()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    //fetched data
+                    Log.d(this.localClassName,it.size.toString())
+                    markElementsAtMap(it)
                 }, {
                     //error
                 })
         //todo fetch messages and display to map
+    }
+
+    private fun markElementsAtMap(it: List<Position>?) {
+        if (it == null) return
+        for (pos in it) {
+            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)).title("BARDZO DLUGI STRING KTORY MA BARDZO DUZO ZNAKOW I NA PEWNO NIE ZMIESCI SIE W CHMURCE"))
+        }
     }
 }

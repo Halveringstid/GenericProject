@@ -1,6 +1,7 @@
 package me.rozkmin.generic.network
 
 import io.reactivex.Single
+import me.rozkmin.generic.Position
 import me.rozkmin.generic.createmessage.NewMessageBody
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -11,8 +12,8 @@ import retrofit2.http.POST
  */
 interface NetworkService {
 
-    @GET("/dupa")
-    fun dupa() : Single<Any>
+    @GET("/userlocations")
+    fun getAllMessages(): Single<List<Position>>
 
 //    @GET("/pubs")
 //    fun getPubList(): Single<List<PubModel>>
