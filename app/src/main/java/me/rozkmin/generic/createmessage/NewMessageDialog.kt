@@ -7,7 +7,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.gms.maps.model.LatLng
 import me.rozkmin.generic.databinding.DialogNewMessageBinding
 
 /**
@@ -16,7 +15,7 @@ import me.rozkmin.generic.databinding.DialogNewMessageBinding
 class NewMessageDialog : DialogFragment() {
 
     companion object {
-        fun newInstance(myPosition: LatLng): NewMessageDialog {
+        fun newInstance(): NewMessageDialog {
             return NewMessageDialog()
         }
     }
