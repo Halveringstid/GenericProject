@@ -1,4 +1,4 @@
-package me.rozkmin.generic
+package me.rozkmin.generic.maps
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -9,18 +9,36 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import me.rozkmin.generic.R
+import me.rozkmin.generic.di.AppModule
+import me.rozkmin.generic.maps.di.MapsModule
+import me.rozkmin.generic.network.NetworkService
+import javax.inject.Inject
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    @Inject
+    lateinit var networkService: NetworkService
 
     private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_maps)
+
+        AppModule.appComponent
+                .plusMapsComponent(MapsModule(this))
+                .inject(this)
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
     }
 
     /**
@@ -40,6 +58,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
+        fetchData()
 
+
+    }
+
+    private fun fetchData() {
+        networkService.dupa()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    //fetched data
+                }, {
+                    //error
+                })
+        //todo fetch messages and display to map
     }
 }

@@ -52,7 +52,7 @@ class NetworkModule {
                 .build()
     }
 
-    fun getLoggingInterceptor(): HttpLoggingInterceptor {
+    private fun getLoggingInterceptor(): HttpLoggingInterceptor {
         val httpLoggingInterceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { p0 -> Log.d(TAG, p0) })
         httpLoggingInterceptor.level=HttpLoggingInterceptor.Level.BODY
         return httpLoggingInterceptor

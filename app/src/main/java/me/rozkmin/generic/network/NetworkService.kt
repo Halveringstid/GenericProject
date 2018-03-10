@@ -10,6 +10,9 @@ import retrofit2.http.POST
  */
 interface NetworkService {
 
+    @GET
+    fun dupa() : Single<Any>
+
 //    @GET("/pubs")
 //    fun getPubList(): Single<List<PubModel>>
 //

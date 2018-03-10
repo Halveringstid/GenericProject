@@ -1,12 +1,13 @@
 package me.rozkmin.generic.data
 
 import io.reactivex.Single
+import me.rozkmin.generic.network.NetworkService
 
 
 /**
  * Created by jaroslawmichalik on 20.01.2018
  */
-abstract class AbstractProvider<T>(var networkService: Service = NetworkService(), var baseDao: BaseDao<T> = EmptyBaseDao()) {
+abstract class AbstractProvider<T>(var networkService: NetworkService, var baseDao: BaseDao<T> = EmptyBaseDao()) {
     private val TAG = javaClass.simpleName
 
     abstract fun getOne(id: String): Single<T>
@@ -51,7 +52,3 @@ abstract class AbstractProvider<T>(var networkService: Service = NetworkService(
 
     }
 }
-
-interface Service
-
-class NetworkService : Service

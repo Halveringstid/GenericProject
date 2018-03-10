@@ -4,6 +4,8 @@ import android.app.Application
 import dagger.BindsInstance
 import dagger.Component
 import io.realm.RealmConfiguration
+import me.rozkmin.generic.maps.di.MapsComponent
+import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.PresenterSchedulers
 import me.rozkmin.generic.data.di.DatabaseModule
 import me.rozkmin.generic.network.NetworkModule
@@ -14,18 +16,21 @@ import javax.inject.Singleton
  */
 @Singleton
 @Component(modules = [(DatabaseModule::class), (NetworkModule::class)])
-interface AppComponent{
+interface AppComponent {
 
-//    fun plusCreateNewComponent(module : CreateNewModule) : CreateNewComponent
+    fun plusMapsComponent(mapsModule: MapsModule): MapsComponent
 
     @Component.Builder
     interface Builder {
         @BindsInstance
         fun application(application: Application): Builder
+
         @BindsInstance
         fun realmConfig(realmConfig: RealmConfiguration): Builder
+
         @BindsInstance
-        fun schedulers(presenterSchedulers: PresenterSchedulers) : Builder
+        fun schedulers(presenterSchedulers: PresenterSchedulers): Builder
+
         fun build(): AppComponent
     }
 
