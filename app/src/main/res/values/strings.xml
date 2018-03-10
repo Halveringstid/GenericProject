@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">App</string>
+    <string name="done">Done</string>
+    <string name="swot_enter_title">Enter title</string>
+    <string name="swot_enter_subtitle">Enter subtitle (optional)</string>
+    <string name="swot_enter_description">Enter descrription (optional)</string>
+    <string name="success">Sucess</string>
+</resources>
