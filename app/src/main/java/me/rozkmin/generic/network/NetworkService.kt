@@ -29,6 +29,6 @@ interface NetworkService {
 //    @GET("/sales")
 //    fun getPromotions(): Single<List<PromotionModel>>
 
-    @POST("api/messages")
-    fun postNewMessage(@Body newMessageBody : NewMessageBody) : Single<Any>
+    @POST("api/messages/")
+    fun postNewMessage(@Body newMessageBody : NewMessageBody) : Single<Wrapper>
 }
