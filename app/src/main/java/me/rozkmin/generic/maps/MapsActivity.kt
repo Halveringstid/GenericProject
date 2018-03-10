@@ -11,7 +11,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_maps.*
 import me.rozkmin.generic.R
+import me.rozkmin.generic.createmessage.NewMessageDialog
 import me.rozkmin.generic.di.AppModule
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
@@ -33,6 +35,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .plusMapsComponent(MapsModule(this))
                 .inject(this)
 
+        fab.setOnClickListener {
+            NewMessageDialog.newInstance(LatLng(0.0, 0.0))
+                    .show(supportFragmentManager, "")
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager

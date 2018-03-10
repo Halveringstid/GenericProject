@@ -6,4 +6,6 @@
     <string name="swot_enter_description">Enter descrription (optional)</string>
     <string name="success">Sucess</string>
     <string name="title_activity_maps">Map</string>
+    <string name="new_message_cta">Write something funny</string>
+    <string name="new_message_send">Send</string>
 </resources>
