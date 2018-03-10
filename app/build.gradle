@@ -80,6 +80,9 @@ dependencies {
     compile daggerDependencies.daggerCompile
     kapt daggerDependencies.daggerKapt
 
+    compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
+
+
 
     testCompile unitTestDependencies.values()
     testCompile kotlinTestDependencies.values()

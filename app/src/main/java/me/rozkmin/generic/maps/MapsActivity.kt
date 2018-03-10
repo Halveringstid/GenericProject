@@ -1,9 +1,11 @@
 package me.rozkmin.generic.maps
 
 import android.app.Dialog
+import android.Manifest
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -12,13 +14,16 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_maps.*
 import me.rozkmin.generic.Position
 import me.rozkmin.generic.R
+import me.rozkmin.generic.createmessage.NewMessageBody
 import me.rozkmin.generic.createmessage.NewMessageDialog
 import me.rozkmin.generic.di.AppModule
+import me.rozkmin.generic.location.LocationProvider
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
@@ -31,6 +36,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     @Inject
     lateinit var networkService: NetworkService
+
+    @Inject
+    lateinit var locationProvider: LocationProvider
 
     private lateinit var mMap: GoogleMap
 
@@ -45,7 +53,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
         fab.setOnClickListener {
             NewMessageDialog.newInstance(LatLng(0.0, 0.0))
+                    .apply {
+                        submitFunction = {
+                            networkService.postNewMessage(
+                                    NewMessageBody(
+                                            message = it,
+                                            lat = locationProvider.getLastKnownLocation().latitude,
+                                            lon = locationProvider.getLastKnownLocation().longitude
+                                    ))
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(AndroidSchedulers.mainThread())
+                                    .subscribe({
+
+                                    }, {
+                                        Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
+                                    })
+                        }
+                    }
                     .show(supportFragmentManager, "")
+        }
+
+        checkPermissions {
+            if (it) locationProvider.start(this)
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -53,6 +82,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+    }
+
+    private inline fun AppCompatActivity.checkPermissions(crossinline block: (Boolean) -> Unit) {
+        RxPermissions(this).request(Manifest.permission.ACCESS_FINE_LOCATION)
+                .doOnNext { block.invoke(it) }
+                .doOnError { block.invoke(false) }
+                .subscribe()
     }
 
     /**

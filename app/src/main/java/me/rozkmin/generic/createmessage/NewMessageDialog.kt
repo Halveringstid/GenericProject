@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.gms.maps.model.LatLng
-import me.rozkmin.generic.R
 import me.rozkmin.generic.databinding.DialogNewMessageBinding
 
 /**

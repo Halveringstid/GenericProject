@@ -2,6 +2,7 @@ package me.rozkmin.generic.network
 
 import io.reactivex.Single
 import me.rozkmin.generic.Position
+import me.rozkmin.generic.createmessage.NewMessageBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -26,4 +27,7 @@ interface NetworkService {
 //
 //    @GET("/sales")
 //    fun getPromotions(): Single<List<PromotionModel>>
+
+    @POST("api/messages")
+    fun postNewMessage(@Body newMessageBody : NewMessageBody) : Single<Any>
 }
