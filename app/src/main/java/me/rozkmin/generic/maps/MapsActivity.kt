@@ -30,7 +30,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.content.ContextCompat
+import android.text.format.Time
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import me.rozkmin.generic.data.SharedPreferencesStorage
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -50,6 +56,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        SharedPreferencesStorage(this@MapsActivity).sharedPreferences
+
         setContentView(R.layout.activity_maps)
 
         AppModule.appComponent
@@ -61,21 +69,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .apply {
                         submitFunction = {
                             Log.d(TAG, "postingNewMessage: "+it)
-                            networkService.postNewMessage(
-                                    NewMessageBody(
-                                            message = it,
-                                            lat = locationProvider.getLastKnownLocation().latitude,
-                                            lon = locationProvider.getLastKnownLocation().longitude
-                                    ))
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe({
-                                        Log.d(TAG, "submitMyMessage: "+it)
-                                        this.dismiss()
-                                    }, {
-                                        Log.e(TAG, "submitError: ", it)
-                                        Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
-                                    })
+                            val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
+                            Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 2 ) {
+
+                                networkService.postNewMessage(
+                                        NewMessageBody(
+                                                message = it,
+                                                lat = locationProvider.getLastKnownLocation().latitude,
+                                                lon = locationProvider.getLastKnownLocation().longitude
+                                        ))
+                                        .subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe({
+                                            Log.d(TAG, "submitMyMessage: " + it)
+
+                                            SharedPreferencesStorage(this@MapsActivity).updateLastMessageTimestamp(System.currentTimeMillis().toString())
+                                            var first = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
+                                            Log.d(TAG, first)
+
+                                            this.dismiss()
+
+                                        }, {
+                                            Log.e(TAG, "submitError: ", it)
+                                            Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
+                                        })
+                            } else {
+                                Toast.makeText(this@MapsActivity, "Nie spamuj, do diabła!", Toast.LENGTH_LONG).show()
+                                Log.d(TAG, "Próba spamu zablokowana")
+                            }
                         }
                     }
                     .show(supportFragmentManager, "")
@@ -186,4 +208,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 //            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)).title("BARDZO DLUGI STRING KTORY MA BARDZO DUZO ZNAKOW I NA PEWNO NIE ZMIESCI SIE W CHMURCE"))
 //        }
     }
+}
+
+class TooManyMessagesException : Throwable() {
+
 }
