@@ -25,12 +25,21 @@ import me.rozkmin.generic.location.LocationProvider
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
-import me.rozkmin.generic.Wrapper
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.content.ContextCompat
+import android.text.format.Time
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Marker
+import io.reactivex.Single
+import me.rozkmin.generic.Position
+import me.rozkmin.generic.data.AbstractProvider
+import java.util.*
+import me.rozkmin.generic.data.SharedPreferencesStorage
+import java.text.SimpleDateFormat
+import java.time.LocalTime
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -41,14 +50,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     @Inject
     lateinit var locationProvider: LocationProvider
 
-    private lateinit var mMap: GoogleMap
+    @Inject
+    lateinit var messagesProvider: AbstractProvider<Pair<Position, Boolean>>
+
+    private lateinit var map: GoogleMap
 
     companion object {
         val TAG: String = MapsActivity::class.java.simpleName
     }
 
+    val mapOfMarkers = hashMapOf<Marker, Position>()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        SharedPreferencesStorage(this@MapsActivity).sharedPreferences
 
         setContentView(R.layout.activity_maps)
 
@@ -57,25 +74,37 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .inject(this)
 
         fab.setOnClickListener {
-            NewMessageDialog.newInstance(LatLng(0.0, 0.0))
+            NewMessageDialog.newInstance()
                     .apply {
                         submitFunction = {
-                            Log.d(TAG, "postingNewMessage: "+it)
-                            networkService.postNewMessage(
-                                    NewMessageBody(
-                                            message = it,
-                                            lat = locationProvider.getLastKnownLocation().latitude,
-                                            lon = locationProvider.getLastKnownLocation().longitude
-                                    ))
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe({
-                                        Log.d(TAG, "submitMyMessage: "+it)
-                                        this.dismiss()
-                                    }, {
-                                        Log.e(TAG, "submitError: ", it)
-                                        Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
-                                    })
+
+                            val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
+                            Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 2 ) {
+                                Log.d(TAG, "postingNewMessage: " + it)
+                                networkService.postNewMessage(
+                                        NewMessageBody(
+                                                message = it,
+                                                lat = locationProvider.getLastKnownLocation().latitude,
+                                                lon = locationProvider.getLastKnownLocation().longitude
+                                        ))
+                                        .applySchedulers()
+                                        .subscribe({
+                                            updateElementOnMap(Pair(it.data.copy(id = UUID.randomUUID().toString()), true))
+                                            this.dismiss()
+
+                                            SharedPreferencesStorage(this@MapsActivity).updateLastMessageTimestamp(System.currentTimeMillis().toString())
+                                            val first = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
+                                            Log.d(TAG, first)
+
+                                        }, {
+                                            Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
+                                        })
+                            }
+                            else {
+                                Toast.makeText(this@MapsActivity, "Nie spamuj, do diabła!", Toast.LENGTH_LONG).show()
+                                Log.d(TAG, "Próba spamu zablokowana")
+                            }
                         }
                     }
                     .show(supportFragmentManager, "")
@@ -100,41 +129,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .subscribe()
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        map = googleMap
+        map.setOnMarkerClickListener { marker ->
+            mapOfMarkers[marker]?.let {
+                centerMapOn(marker.position, 15f)
+                setMarkerAsSeen(marker)
+                MessageDialog.newInstance().apply {
+                    message = marker.title
+                }.show(supportFragmentManager, "")
+            }.let { true }
 
-        // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-
-        mMap.setOnMarkerClickListener { marker ->
-            (
-                    if (marker.title == null) {
-                        Log.d("MapsActivity", "Test")
-                        false
-                    } else {
-                        centerMapOn(marker.position,15f)
-                        MessageDialog.newInstance(marker.title).show(supportFragmentManager, "")
-                        true
-                    }
-                    )
         }
         checkPermissions {
-            if(it){
+            if (it) {
                 centerOnMe()
             }
         }
         fetchData()
+    }
+
+    private fun setMarkerAsSeen(marker: Marker?) {
+        marker?.let {
+            mapOfMarkers[it]?.let {
+                messagesProvider.update(Pair(it, true))
+                        .applySchedulers()
+                        .subscribe({
+                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.station_green, 100, 100))) //set seen icon
+                        }, {
+                            Log.e(TAG, "setMarkerAsSeen: ", it)
+                        })
+            }
+
+        }
     }
 
     private fun centerOnMe() {
@@ -148,20 +175,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun centerMapOn(latLng: LatLng, zoom: Float) {
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
     }
 
     private fun fetchData() {
-        networkService.getAllMessages()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Log.d(this.localClassName, it.size.toString())
-                    markElementsAtMap(it)
-                }, {
-                    //error
-                })
-        //todo fetch messages and display to map
+
+        messagesProvider.getAll()
+                .applySchedulers()
+                .doOnError {
+                    Log.e(TAG, "fetchData: ", it)
+                }
+                .doOnSuccess {
+                    it.forEach { updateElementOnMap(it) }
+                }
+                .subscribe()
+    }
+
+    private fun updateElementOnMap(element: Pair<Position, Boolean>) {
+
+        val icon = (if (element.second) getBitmap(R.drawable.readable) else getBitmap(R.drawable.spray_icon))
+                .let {
+                    Bitmap.createScaledBitmap(it, 100, 100, false)
+                }
+
+        val marker = map.addMarker(
+                MarkerOptions()
+                        .position(LatLng(element.first.lat, element.first.lon)).title(element.first.message)
+                        .icon(BitmapDescriptorFactory.fromBitmap(icon)))
+
+        mapOfMarkers[marker] = element.first
     }
 
     private fun Context.getBitmap(resourceId: Int) =
@@ -171,19 +213,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val imageBitmap = getBitmap(resourceId)
         return Bitmap.createScaledBitmap(imageBitmap, width, height, false)
     }
-    private fun markElementsAtMap(it: List<Wrapper>?) {
 
-        it?.apply {
-            map {
-                it.data
-            }.forEach {
-                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.readable,100,100))))
-            }
-        }
 
-//        if (it == null) return
-//        for (pos in it) {
-//            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)).title("BARDZO DLUGI STRING KTORY MA BARDZO DUZO ZNAKOW I NA PEWNO NIE ZMIESCI SIE W CHMURCE"))
-//        }
-    }
+    private fun <T> Single<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+}
+
+class TooManyMessagesException : Throwable() {
+
 }

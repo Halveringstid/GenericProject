@@ -5,6 +5,7 @@ package me.rozkmin.generic
  */
 
 data class Position(
+        val id: String = "",
         val author: String = "",
         val created_at: String = "",
         val lat: Double,
@@ -13,5 +14,6 @@ data class Position(
 )
 
 data class Wrapper(
-    val data : Position
+        val id: String = "",
+        val data: Position
 )

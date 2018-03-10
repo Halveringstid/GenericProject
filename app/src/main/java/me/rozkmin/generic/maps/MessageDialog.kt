@@ -1,7 +1,5 @@
 package me.rozkmin.generic.maps
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
@@ -9,21 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import me.rozkmin.generic.databinding.MessageDialogBinding
 
-//import me.rozkmin.generic.databinding.MessageDialogBinding
-
 
 /**
- * Created by edawhuj on 2018-03-10.
+ * Created by edawhuj on 2018-03-10
  */
 class MessageDialog : DialogFragment() {
     companion object {
-        private var message: String = ""
-
-        fun newInstance(msg: String): MessageDialog {
-            message = msg
-            return MessageDialog()
-        }
+        fun newInstance(): MessageDialog = MessageDialog()
     }
+
+    var message: String = ""
 
     lateinit var binding: MessageDialogBinding
 
@@ -33,15 +26,14 @@ class MessageDialog : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        //binding.messageDialogContent.background = ColorDrawable(Color.TRANSPARENT)
         binding.messageDialogContent.text = message
         super.onViewCreated(view, savedInstanceState)
 
-        binding.messageDialogButtonYes.setOnClickListener{
+        binding.messageDialogButtonYes.setOnClickListener {
             this.dismiss()
         }
 
-        binding.messageDialogButtonNo.setOnClickListener{
+        binding.messageDialogButtonNo.setOnClickListener {
             this.dismiss()
         }
     }
