@@ -123,6 +123,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         Log.d("MapsActivity", "Test")
                         false
                     } else {
+                        centerMapOn(marker.position,15f)
                         MessageDialog.newInstance(marker.title).show(supportFragmentManager, "")
                         true
                     }
@@ -143,9 +144,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun centerMapOn(latLng: LatLng) {
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 11f))
+        centerMapOn(latLng, 11f)
     }
 
+    private fun centerMapOn(latLng: LatLng, zoom: Float) {
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+    }
 
     private fun fetchData() {
         networkService.getAllMessages()
@@ -173,7 +177,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             map {
                 it.data
             }.forEach {
-                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.spray_icon,100,100))))
+                mMap.addMarker(MarkerOptions().position(LatLng(it.lat, it.lon)).title(it.message).icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.readable,100,100))))
             }
         }
 

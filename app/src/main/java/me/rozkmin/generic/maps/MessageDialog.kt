@@ -1,5 +1,7 @@
 package me.rozkmin.generic.maps
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
@@ -31,6 +33,7 @@ class MessageDialog : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        //binding.messageDialogContent.background = ColorDrawable(Color.TRANSPARENT)
         binding.messageDialogContent.text = message
         super.onViewCreated(view, savedInstanceState)
 
