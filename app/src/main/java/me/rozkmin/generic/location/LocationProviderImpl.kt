@@ -84,5 +84,6 @@ class LocationProviderImpl @Inject constructor() : LocationProvider {
             ?: locationManager?.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                     ?.let {
                         LatLng(it.latitude, it.longitude)
-                    } ?: LatLng(0.0, 0.0)
+                    } ?: LatLng(50.05273086249454, 19.944638420504692)
+
 }
