@@ -2,15 +2,18 @@ package me.rozkmin.generic.maps
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import me.rozkmin.generic.Position
 import me.rozkmin.generic.R
 import me.rozkmin.generic.di.AppModule
 import me.rozkmin.generic.maps.di.MapsModule
@@ -54,24 +57,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+//        val sydney = LatLng(-34.0, 151.0)
+//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
 
         fetchData()
 
 
     }
-
+//
     private fun fetchData() {
-        networkService.dupa()
+        networkService.getAllMessages()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    //fetched data
+                    Log.d(this.localClassName,it.size.toString())
+                    markElementsAtMap(it)
                 }, {
                     //error
                 })
         //todo fetch messages and display to map
+    }
+
+    private fun markElementsAtMap(it: List<Position>?) {
+        if (it == null) return
+        for (pos in it) {
+            mMap.addMarker(MarkerOptions().position(LatLng(pos.lat,pos.lon)))
+        }
     }
 }
