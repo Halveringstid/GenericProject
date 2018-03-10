@@ -10,13 +10,12 @@ import retrofit2.http.POST
  * Created by jaroslawmichalik on 20.12.2017
  */
 interface NetworkService {
-//
-//    @GET
-//    fun dupa() : Single<Any>
 
     @GET("/userlocations")
     fun getAllMessages(): Single<List<Position>>
 
+//    @GET("/pubs")
+//    fun getPubList(): Single<List<PubModel>>
 //
 //    //    @GET("/userlocations?from=-10000&to=10000")
 //    @GET("/userlocations")

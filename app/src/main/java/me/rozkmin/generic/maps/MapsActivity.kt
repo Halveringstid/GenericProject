@@ -2,19 +2,18 @@ package me.rozkmin.generic.maps
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import me.rozkmin.generic.Position
+import kotlinx.android.synthetic.main.activity_maps.*
 import me.rozkmin.generic.R
+import me.rozkmin.generic.createmessage.NewMessageDialog
 import me.rozkmin.generic.di.AppModule
 import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
@@ -36,6 +35,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .plusMapsComponent(MapsModule(this))
                 .inject(this)
 
+        fab.setOnClickListener {
+            NewMessageDialog.newInstance(LatLng(0.0, 0.0))
+                    .show(supportFragmentManager, "")
+        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -65,7 +68,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     }
-//
+
     private fun fetchData() {
         networkService.getAllMessages()
                 .subscribeOn(Schedulers.io())
