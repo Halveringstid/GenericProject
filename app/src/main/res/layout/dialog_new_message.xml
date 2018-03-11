@@ -19,7 +19,7 @@
         <EditText
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:hint="@string/new_message_cta"
+            android:hint="@string/new_author_cta"
             android:id="@+id/dialog_new_message_author"/>
 
         <Button
