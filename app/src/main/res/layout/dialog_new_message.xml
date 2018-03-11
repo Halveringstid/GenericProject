@@ -40,7 +40,8 @@
             android:id="@+id/dialog_new_message_submit"
             android:layout_width="281dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_background"
+            android:textColor="#000000"
+            android:background="@drawable/button_rounded"
             android:text="@string/new_message_send" />
 
     </LinearLayout>

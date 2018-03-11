@@ -1,5 +1,6 @@
 package me.rozkmin.generic.createmessage
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.text.Editable
@@ -31,8 +32,10 @@ class NewMessageDialog : DialogFragment() {
         return binding.root
     }
 
+    @SuppressLint("NewApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view.clipToOutline = true
 
         binding.dialogNewMessageContent.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {

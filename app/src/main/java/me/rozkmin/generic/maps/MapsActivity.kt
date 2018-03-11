@@ -57,7 +57,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     @Inject
     lateinit var messagesProvider: AbstractProvider<Pair<Position, Boolean>>
 
-    private var mClusterManager: ClusterManager<PositionCluster>? = null
     private lateinit var map: GoogleMap
 
     companion object {
@@ -136,9 +135,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-
-//        mClusterManager = ClusterManager<PositionCluster>(this, map)
-//        map.setOnCameraChangeListener(mClusterManager)
 
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.maps_style_dark))
         map.setOnMarkerClickListener { marker ->
@@ -280,6 +276,4 @@ private fun <T> Single<T>.applySchedulers() = subscribeOn(Schedulers.io()).obser
 
 private fun <T> Flowable<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
-class TooManyMessagesException : Throwable() {
 
-}
