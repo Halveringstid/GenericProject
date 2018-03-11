@@ -26,13 +26,17 @@ import me.rozkmin.generic.maps.di.MapsModule
 import me.rozkmin.generic.network.NetworkService
 import javax.inject.Inject
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.Circle
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Marker
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
+import me.rozkmin.generic.InfoDialog
 import me.rozkmin.generic.Position
 import me.rozkmin.generic.data.AbstractProvider
 import java.util.*
@@ -78,7 +82,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                             val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
                             Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
-                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 2) {
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 1) {
                                 Log.d(TAG, "postingNewMessage: " + it)
                                 networkService.postNewMessage(
                                         NewMessageBody(
@@ -89,7 +93,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                         ))
                                         .applySchedulers()
                                         .subscribe({
-                                            updateElementOnMap(Pair(it.data.copy(id = UUID.randomUUID().toString()), true))
+                                            updateElementOnMap(Pair(it.data.copy(id = it.id), true))
                                             this.dismiss()
 
                                             SharedPreferencesStorage(this@MapsActivity).updateLastMessageTimestamp(System.currentTimeMillis().toString())
@@ -132,10 +136,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         map.setOnMarkerClickListener { marker ->
             mapOfMarkers[marker]?.let {
                 centerMapOn(marker.position, 15f)
-                setMarkerAsSeen(marker)
-                MessageDialog.newInstance().apply {
-                    message = marker.title
-                }.show(supportFragmentManager, "")
+
+                if(locationProvider.computeDistanceFromMe(it.lat, it.lon) > 50){
+                    InfoDialog.newInstance()
+                            .apply {
+                                title = R.string.you_must_be_closer
+                            }.show(supportFragmentManager, TAG)
+                } else{
+                    setMarkerAsSeen(marker)
+                    MessageDialog.newInstance().apply {
+                        message = marker.title
+                    }.show(supportFragmentManager, "")
+                }
+
+
             }.let { true }
 
         }
@@ -202,8 +216,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .subscribe()
     }
 
-    private fun updateMyPosition(it: LatLng) {
+    var myPositionCircle : Circle? = null
 
+    private fun updateMyPosition(it: LatLng) {
+        if(myPositionCircle!=null){
+            myPositionCircle?.center=it
+        } else {
+            myPositionCircle = map.addCircle(CircleOptions()
+                    .center(it)
+                    .radius(50.0)
+                    .strokeColor(Color.TRANSPARENT)
+                    .fillColor(Color.argb(77, 255, 0, 255)))
+        }
     }
 
     private fun updateElementOnMap(element: Pair<Position, Boolean>) {

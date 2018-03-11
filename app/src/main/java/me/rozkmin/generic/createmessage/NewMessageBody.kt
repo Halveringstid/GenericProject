@@ -5,6 +5,6 @@ package me.rozkmin.generic.createmessage
  */
 data class NewMessageBody(
         val message: String,
-        val author: String = "",
+        val author: String = "Anon Anonowicz",
         val lat: Double,
         val lon: Double)
