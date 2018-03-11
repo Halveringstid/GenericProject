@@ -83,6 +83,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:9.0.2'
     compile 'com.google.maps.android:android-maps-utils:0.4.3'
     compile 'com.tbruyelle.rxpermissions2:rxpermissions:0.9.5@aar'
+    compile 'net.sharewire:google-maps-clustering:0.1.3'
 
 
 
