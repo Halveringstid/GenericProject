@@ -81,8 +81,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                         submitFunction = {content,author ->
 
                             val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
-                            Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
-                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong()) > 1) {
+                            Log.d(TAG, (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - test.toLong())).toString())
+                            if (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - test.toLong()) > 15) {
                                 Log.d(TAG, "postingNewMessage: " + it)
                                 networkService.postNewMessage(
                                         NewMessageBody(
@@ -104,7 +104,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                             Toast.makeText(this@MapsActivity, R.string.cant_send_message, Toast.LENGTH_SHORT).show()
                                         })
                             } else {
-                                Toast.makeText(this@MapsActivity, "Nie spamuj, do diabła!", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@MapsActivity, "Nie spamuj, do diabła!", Toast.LENGTH_SHORT).show()
                                 Log.d(TAG, "Próba spamu zablokowana")
                             }
                         }
@@ -231,6 +231,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun updateElementOnMap(element: Pair<Position, Boolean>) {
+        Log.d(TAG, "updateElemntOnMap"  +element)
 
         val icon = (if (element.second) getBitmap(R.drawable.readable) else getBitmap(R.drawable.spray_icon))
                 .let {
