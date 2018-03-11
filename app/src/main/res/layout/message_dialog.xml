@@ -5,7 +5,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:background="@drawable/bricks"
+        android:background="@color/cardview_dark_background"
         android:minWidth="300dp"
         android:orientation="vertical"
         android:padding="10dp">
@@ -15,19 +15,26 @@
             android:layout_width="match_parent"
             android:layout_height="39dp"
             android:layout_marginTop="30dp"
-            android:gravity="center"
-            android:textColor="#000"
+            android:layout_marginStart="10dp"
+            android:gravity="start|center"
+            android:textColor="@color/colorBackgroundLight"
             tools:text="Anon Anonowicz"
-            android:textAlignment="center"
             android:textSize="15sp" />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="1dp"
+            android:layout_margin="3dp"
+            android:background="@color/cardview_light_background"/>
 
         <TextView
             android:id="@+id/message_dialog_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:textColor="#000"
+            android:textColor="@color/colorAccent"
             android:gravity="center"
+            android:textSize="22sp"
             tools:text="To ja. Linijkarz. Ostatni ocalały z katastrofy greckiego tankowca Lotus."
             android:textAlignment="center" />
 

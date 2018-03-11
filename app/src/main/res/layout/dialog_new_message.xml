@@ -1,27 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
-        android:minWidth="300dp"
-        android:layout_margin="10dp"
-        android:padding="10dp"
-        android:background="@color/colorBackgroundLight"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_margin="10dp"
+        android:background="@color/cardview_dark_background"
+        android:minWidth="300dp"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/dialog_new_message_chars_left"
+            android:layout_gravity="end"
+            android:layout_margin="10dp"
+            android:textSize="9sp"
+            tools:text="123/140"/>
 
         <EditText
+            android:id="@+id/dialog_new_message_content"
             android:layout_width="match_parent"
             android:layout_height="250dp"
+            android:textSize="25sp"
             android:hint="@string/new_message_cta"
-            android:id="@+id/dialog_new_message_content"/>
+            android:textColor="@color/colorAccent"
+            android:textColorHint="@color/colorBackgroundLight" />
+
+        <EditText
+            android:id="@+id/dialog_new_message_author"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="@string/new_author_cta"
+            android:textColor="@color/colorAccent"
+            android:textColorHint="@color/colorBackgroundLight" />
 
         <Button
+            android:id="@+id/dialog_new_message_submit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_rounded"
-            android:id="@+id/dialog_new_message_submit"
-            android:text="@string/new_message_send"/>
+            android:text="@string/new_message_send" />
 
     </LinearLayout>
 </layout>

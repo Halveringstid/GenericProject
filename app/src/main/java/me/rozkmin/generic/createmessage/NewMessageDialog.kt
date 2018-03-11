@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,8 @@ class NewMessageDialog : DialogFragment() {
         }
     }
 
-    var submitFunction : (String)->Unit = {_->}
+    var submitFunction: (String, String) -> Unit = { _, _ ->
+    }
 
     lateinit var binding: DialogNewMessageBinding
 
@@ -40,10 +42,13 @@ class NewMessageDialog : DialogFragment() {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.dialogNewMessageCharsLeft.text = "$count / 140"
                 s?.apply {
-                    validate(this){
+                    validate(this) {
                         binding.dialogNewMessageSubmit.setOnClickListener {
-                            submitFunction.invoke(this.toString())
+                            val author = binding.dialogNewMessageAuthor.text.toString()
+                            Log.d("LOG", author)
+                            submitFunction.invoke(this.toString(), author)
                         }
                     }
                 }

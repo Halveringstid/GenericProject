@@ -34,11 +34,13 @@ import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
+import com.google.maps.android.clustering.ClusterManager
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import me.rozkmin.generic.InfoDialog
 import me.rozkmin.generic.Position
+import me.rozkmin.generic.PositionCluster
 import me.rozkmin.generic.data.AbstractProvider
 import me.rozkmin.generic.data.SharedPreferencesStorage
 import java.util.concurrent.TimeUnit
@@ -55,6 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     @Inject
     lateinit var messagesProvider: AbstractProvider<Pair<Position, Boolean>>
 
+    private var mClusterManager: ClusterManager<PositionCluster>? = null
     private lateinit var map: GoogleMap
 
     companion object {
@@ -78,7 +81,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fab.setOnClickListener {
             NewMessageDialog.newInstance()
                     .apply {
-                        submitFunction = {
+                        submitFunction = {content,author ->
 
                             val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
                             Log.d(TAG, (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - test.toLong())).toString())
@@ -86,10 +89,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 Log.d(TAG, "postingNewMessage: " + it)
                                 networkService.postNewMessage(
                                         NewMessageBody(
-                                                message = it,
+                                                message = content,
                                                 lat = locationProvider.getLastKnownLocation().latitude,
                                                 lon = locationProvider.getLastKnownLocation().longitude,
-                                                author = "Anon Anonowicz"
+                                                author = author
                                         ))
                                         .applySchedulers()
                                         .subscribe({
@@ -133,10 +136,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
+//        mClusterManager = ClusterManager<PositionCluster>(this, map)
+//        map.setOnCameraChangeListener(mClusterManager)
+
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.maps_style_dark))
         map.setOnMarkerClickListener { marker ->
             mapOfMarkers[marker]?.let {
-                centerMapOn(marker.position, 15f)
+                centerMapOn(marker.position, 18f)
 
                 if(locationProvider.computeDistanceFromMe(it.lat, it.lon) > 50){
                     InfoDialog.newInstance()
@@ -150,10 +157,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     }.show(supportFragmentManager, "")
                 }
 
-
             }.let { true }
 
         }
+        updateMyPosition(locationProvider.getLastKnownLocation())
+
         checkPermissions {
             if (it) {
                 centerOnMe()
@@ -168,7 +176,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 messagesProvider.update(Pair(it, true))
                         .applySchedulers()
                         .subscribe({
-                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.spray_icon, 100, 100))) //set seen icon
+                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.readable, 100, 100))) //set seen icon
                         }, {
                             Log.e(TAG, "setMarkerAsSeen: ", it)
                         })
@@ -189,7 +197,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun centerMapOn(latLng: LatLng) {
-        centerMapOn(latLng, 15f)
+        centerMapOn(latLng, 17f)
     }
 
     private fun centerMapOn(latLng: LatLng, zoom: Float) {
@@ -232,14 +240,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     .center(it)
                     .radius(50.0)
                     .strokeColor(Color.TRANSPARENT)
-                    .fillColor(Color.argb(77, 255, 0, 255)))
+                    .fillColor(Color.argb(77, 217, 111, 25)))
         }
     }
 
     private fun updateElementOnMap(element: Pair<Position, Boolean>) {
         Log.d(TAG, "updateElemntOnMap"  +element)
 
-        val icon = (if (element.second) getBitmap(R.drawable.readable) else getBitmap(R.drawable.spray_icon))
+        val icon = (if (element.second) getBitmap(R.drawable.readable) else getBitmap(R.drawable.unread))
                 .let {
                     Bitmap.createScaledBitmap(it, 100, 100, false)
                 }

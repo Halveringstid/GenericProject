@@ -5,6 +5,7 @@ import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import me.rozkmin.generic.R
 import me.rozkmin.generic.databinding.MessageDialogBinding
 
 
@@ -17,6 +18,7 @@ class MessageDialog : DialogFragment() {
     }
 
     var message: String = ""
+    var author: String = ""
 
     lateinit var binding: MessageDialogBinding
 
@@ -27,6 +29,7 @@ class MessageDialog : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.messageDialogContent.text = message
+        binding.messageDialogAuthor.text = if (author.isNotEmpty()) author else getString(R.string.authorus_anonymous)
         super.onViewCreated(view, savedInstanceState)
 
         binding.messageDialogButtonYes.setOnClickListener {
