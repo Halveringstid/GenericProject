@@ -33,11 +33,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.Marker
+import com.google.maps.android.clustering.ClusterManager
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import me.rozkmin.generic.InfoDialog
 import me.rozkmin.generic.Position
+import me.rozkmin.generic.PositionCluster
 import me.rozkmin.generic.data.AbstractProvider
 import java.util.*
 import me.rozkmin.generic.data.SharedPreferencesStorage
@@ -55,6 +57,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     @Inject
     lateinit var messagesProvider: AbstractProvider<Pair<Position, Boolean>>
 
+    private var mClusterManager: ClusterManager<PositionCluster>? = null
     private lateinit var map: GoogleMap
 
     companion object {
@@ -133,6 +136,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
+        mClusterManager = ClusterManager<PositionCluster>(this, map)
+        map.setOnCameraChangeListener(mClusterManager)
         map.setOnMarkerClickListener { marker ->
             mapOfMarkers[marker]?.let {
                 centerMapOn(marker.position, 15f)
@@ -167,7 +173,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 messagesProvider.update(Pair(it, true))
                         .applySchedulers()
                         .subscribe({
-                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.station_green, 100, 100))) //set seen icon
+                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.readable, 100, 100))) //set seen icon
                         }, {
                             Log.e(TAG, "setMarkerAsSeen: ", it)
                         })
@@ -233,7 +239,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun updateElementOnMap(element: Pair<Position, Boolean>) {
         Log.d(TAG, "updateElemntOnMap"  +element)
 
-        val icon = (if (element.second) getBitmap(R.drawable.readable) else getBitmap(R.drawable.spray_icon))
+        val icon = (if (element.second) getBitmap(R.drawable.readable) else getBitmap(R.drawable.unread))
                 .let {
                     Bitmap.createScaledBitmap(it, 100, 100, false)
                 }
