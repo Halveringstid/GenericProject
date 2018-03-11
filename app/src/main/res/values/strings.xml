@@ -10,5 +10,7 @@
     <string name="new_message_send">Send</string>
     <string name="cant_send_message">Can\'t send message</string>
     <string name="you_must_be_closer">You must be closer to see this message!</string>
+    <string name="nice_bro">Good Anon</string>
+    <string name="bad_anon">Bad anon</string>
 
 </resources>
