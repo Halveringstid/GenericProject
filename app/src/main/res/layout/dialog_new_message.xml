@@ -5,7 +5,7 @@
         android:layout_width="wrap_content"
         android:layout_height="260dp"
         android:layout_margin="10dp"
-        android:background="@color/cardview_dark_background"
+        android:background="@drawable/msg_background"
         android:minWidth="300dp"
         android:orientation="vertical"
         android:padding="10dp">
@@ -38,7 +38,7 @@
 
         <Button
             android:id="@+id/dialog_new_message_submit"
-            android:layout_width="match_parent"
+            android:layout_width="281dp"
             android:layout_height="wrap_content"
             android:background="@drawable/button_rounded"
             android:text="@string/new_message_send" />
