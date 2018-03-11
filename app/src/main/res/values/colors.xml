@@ -6,4 +6,5 @@
     <color name="colorBackgroundLight">#efefef</color>
     <color name="yes">#2855af</color>
     <color name="no">#00FFFF</color>
+    <color name="bar">#383832</color>
 </resources>
