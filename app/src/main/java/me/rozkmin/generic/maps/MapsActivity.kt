@@ -78,7 +78,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         fab.setOnClickListener {
             NewMessageDialog.newInstance()
                     .apply {
-                        submitFunction = {
+                        submitFunction = {content,author ->
 
                             val test = SharedPreferencesStorage(this@MapsActivity).getLastMessageTimestamp()
                             Log.d(TAG, (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - test.toLong())).toString())
@@ -86,10 +86,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                                 Log.d(TAG, "postingNewMessage: " + it)
                                 networkService.postNewMessage(
                                         NewMessageBody(
-                                                message = it,
+                                                message = content,
                                                 lat = locationProvider.getLastKnownLocation().latitude,
                                                 lon = locationProvider.getLastKnownLocation().longitude,
-                                                author = "Anon Anonowicz"
+                                                author = author
                                         ))
                                         .applySchedulers()
                                         .subscribe({
