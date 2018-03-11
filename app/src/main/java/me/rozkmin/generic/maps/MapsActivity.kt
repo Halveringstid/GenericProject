@@ -32,6 +32,7 @@ import android.support.v4.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -39,7 +40,6 @@ import io.reactivex.disposables.Disposable
 import me.rozkmin.generic.InfoDialog
 import me.rozkmin.generic.Position
 import me.rozkmin.generic.data.AbstractProvider
-import java.util.*
 import me.rozkmin.generic.data.SharedPreferencesStorage
 import java.util.concurrent.TimeUnit
 
@@ -133,6 +133,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.maps_style_dark))
         map.setOnMarkerClickListener { marker ->
             mapOfMarkers[marker]?.let {
                 centerMapOn(marker.position, 15f)
@@ -167,13 +168,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 messagesProvider.update(Pair(it, true))
                         .applySchedulers()
                         .subscribe({
-                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.station_green, 100, 100))) //set seen icon
+                            marker.setIcon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons(R.drawable.spray_icon, 100, 100))) //set seen icon
                         }, {
                             Log.e(TAG, "setMarkerAsSeen: ", it)
                         })
             }
 
         }
+    }
+
+    override fun onDestroy() {
+        disposable?.dispose()
+        super.onDestroy()
     }
 
     private fun centerOnMe() {
@@ -183,7 +189,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun centerMapOn(latLng: LatLng) {
-        centerMapOn(latLng, 11f)
+        centerMapOn(latLng, 15f)
     }
 
     private fun centerMapOn(latLng: LatLng, zoom: Float) {
@@ -261,8 +267,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    private fun <T> Single<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 }
+private fun <T> Single<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
 private fun <T> Flowable<T>.applySchedulers() = subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
 
