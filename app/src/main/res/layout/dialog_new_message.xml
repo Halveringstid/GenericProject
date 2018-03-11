@@ -3,7 +3,7 @@
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="260dp"
         android:layout_margin="10dp"
         android:background="@color/cardview_dark_background"
         android:minWidth="300dp"
@@ -11,22 +11,22 @@
         android:padding="10dp">
 
         <TextView
+            android:id="@+id/dialog_new_message_chars_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/dialog_new_message_chars_left"
             android:layout_gravity="end"
             android:layout_margin="10dp"
             android:textSize="9sp"
-            tools:text="123/140"/>
+            tools:text="123/140" />
 
         <EditText
             android:id="@+id/dialog_new_message_content"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:textSize="25sp"
+            android:layout_height="130dp"
             android:hint="@string/new_message_cta"
             android:textColor="@color/colorAccent"
-            android:textColorHint="@color/colorBackgroundLight" />
+            android:textColorHint="@color/colorBackgroundLight"
+            android:textSize="20sp" />
 
         <EditText
             android:id="@+id/dialog_new_message_author"

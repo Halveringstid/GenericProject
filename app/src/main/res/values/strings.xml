@@ -6,13 +6,13 @@
     <string name="swot_enter_description">Enter description (optional)</string>
     <string name="success">Success</string>
     <string name="title_activity_maps">Map</string>
-    <string name="new_message_cta">Put the Graph IT in The Chain</string>
+    <string name="new_message_cta">Put the GraphITi in The Chain...</string>
     <string name="new_message_send">Send</string>
     <string name="new_author_cta">Author (optional)</string>
     <string name="cant_send_message">Can\'t send message</string>
     <string name="you_must_be_closer">You must be closer to see this message!</string>
     <string name="nice_bro">Good Anon</string>
-    <string name="bad_anon">Bad anon</string>
+    <string name="bad_anon">Bad Anon</string>
     <string name="authorus_anonymous">Anon</string>
 
 </resources>
