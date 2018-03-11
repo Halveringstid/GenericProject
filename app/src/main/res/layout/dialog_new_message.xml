@@ -23,10 +23,11 @@
             android:id="@+id/dialog_new_message_content"
             android:layout_width="match_parent"
             android:layout_height="130dp"
+            android:gravity="bottom"
             android:hint="@string/new_message_cta"
             android:textColor="@color/colorAccent"
             android:textColorHint="@color/colorBackgroundLight"
-            android:textSize="20sp" />
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/dialog_new_message_author"
